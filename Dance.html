@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dance Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(117, 27, 117);
+        }
+        #question img {
+            margin-left: 110px;
+        }
+        .quiz-container {
+            margin-left: 400px;
+            margin-top: 100px;
+            padding-left: 50px;
+            width: 600px;
+            height: fit-content;
+            border-color: black;
+            border-width: 6px;
+            border-style: solid;
+            background-color: rgb(238, 82, 165);
+            border-radius: 30px;
+        }
+        h1 {
+            color: black;
+            margin-left: 130px;
+            margin-bottom: 20px;
+        }
+        #identify-text {
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 10px; /* Add some space below the text */
+        }
+        #options button {
+            margin: 10px;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            display: flex;
+            border-radius: 10px;
+        }
+        #options button.correct {
+            background-color: green;
+            color: white;
+        }
+        #options button.wrong {
+            background-color: red;
+            color: white;
+        }
+        #next-btn {
+            margin-top: 20px;
+            text-align: center;
+            height: 50px;
+            width: 120px;
+            font-size: 17px;
+            margin-left: 940px;
+        }
+        #op-container {
+            padding-left: 150px;
+        }
+        #result {
+            margin-top: 10px;
+            font-size: large;
+            margin-left: 40px;
+        }
+        #result img {
+            position: relative;
+            right: 100px;
+        }
+        p {
+            font-size: larger;
+            font-weight: bold;
+            color: black;
+            position: relative;
+            right: 40px;
+        }
+        #next-btn {
+            visibility: hidden;
+        }
+        #identify-text{
+            position:relative;
+            right:50px;
+        }
+        
+        @media screen and (max-width: 500px) {
+            .quiz-container {
+                margin-left: 30px;
+                margin-top: 40px;
+                padding-left: 5px;
+                padding-right: 5px;
+                width: 300px;
+                height: 500px;
+                border-width: 3px;
+                border-style: solid;
+                border-radius: 30px;
+            }
+            #result identify-text{
+                font-size:0;
+            }
+            h1 {
+                margin-left: 60px;
+                margin-bottom: 20px;
+            }
+            #options button:hover {
+                background-color: rgb(128, 25, 130);
+                color: rgb(251, 249, 128);
+            }
+            #result {
+                position: relative;
+                right: 40px;
+            }
+            #op-container {
+                position: relative;
+                right: 95px;
+            }
+            #question img {
+                margin-left: 60px;
+                width: 240px;
+                position: relative;
+                right: 30px;
+            }
+            #result img {
+                position: relative;
+                right: 50px;
+                width: 260px;
+            }
+            p {
+                display: block;
+                font-size: 25px;
+                font-weight: bold;
+                width: max-content;
+                position: relative;
+                top: 20px;
+                right: 45px;
+            }
+            #question image {
+                border: 5px;
+                border-color: brown;
+                border-style: solid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Dance Form</h1>
+        
+        <div id="identify-text">Identify the image below:</div> <!-- Added line -->
+        <div id="question"></div>
+        <div id="op-container">
+            <div id="options"></div>
+            <div id="result"></div>
+        </div>
+    </div>
+    <button id="next-btn">Next</button>
+    <script>
+        const quizData = [
+            {
+                image: "https://tse3.mm.bing.net/th?id=OIP.aNkc_lgFFoOfS3BSiRfsmwHaE8&pid=Api&P=0&h=180",
+                options: ["Kathak", "Bharatanatyam", "Odissi", "Kuchipudi"],
+                answer: "Bharatanatyam"
+            },
+            {
+                image: "https://tse4.mm.bing.net/th?id=OIP.BkTDyIvF9DABciGlhB2bQQHaE7&pid=Api&P=0&h=180",
+                options: ["Bharatanatyam", "Kathak", "Odissi", "Kuchipudi"],
+                answer: "Kathak"
+            },
+            {
+                image: "https://tse4.mm.bing.net/th?id=OIP.2SUDJ_5Lib4P42-o9B5QxQHaFU&pid=Api&P=0&h=180",
+                options: ["Kathak", "Bharatanatyam", "Yakshagana", "Kuchipudi"],
+                answer: "Yakshagana"
+            },
+            {
+                image: "https://tse1.mm.bing.net/th?id=OIP.Tnpo3XBHAuKgK3MRFFKy0AHaEJ&pid=Api&P=0&h=180",
+                options: ["Kathak", "Bharatanatyam", "Manipuri", "Kuchipudi"],
+                answer: "Manipuri"
+            },
+            {
+                image: "https://thumbs.dreamstime.com/z/sikh-artists-performing-bhangra-dance-stage-bikaner-rajasthan-india-january-group-male-female-bhangra-artists-202562326.jpg",
+                options: ["Kathak", "Bhangra", "Odissi", "Kuchipudi"],
+                answer: "Bhangra"
+            },
+            {
+                image: "https://i.pinimg.com/originals/47/91/36/4791369589f7e10275300bcfd62ce490.jpg",
+                options: ["Garba", "Kathak", "Odissi", "Bhangra"],
+                answer: "Garba"
+            },
+            {
+                image: "https://www.auchitya.com/wp-content/uploads/2021/04/lavani-dance.jpg",
+                options: ["Kathak", "Bharatanatyam", "Garba", "Lavani"],
+                answer: "Lavani"
+            },
+            {
+                image: "https://cultureandheritage.org/wp-content/uploads/2021/05/a-11-1980x1316.jpg",
+                options: ["Kathak", "Manipuri", "Dollu Kunitha", "Padhayani"],
+                answer: "Dollu Kunitha"
+            },
+            {
+                image: "https://www.epiconictravel.com/wp-content/uploads/2019/10/Youths-Assam-performs-Bihu-dance-epiconic-travel-india.jpg",
+                options: ["Kathak", "Dollu Kunitha", "Bihu", "Garba"],
+                answer: "Bihu"
+            },
+            {
+                image: "https://www.keralatourism.org/images/picture/large/Padayani_vibrant_folk_artform_from_Kerala_2637.jpg",
+                options: ["Kathak", "Padayani", "Manipuri", "Yakshagana"],
+                answer: "Padayani"
+            },
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const resultElement = document.getElementById('result');
+        const identifyTextElement = document.getElementById('identify-text'); // Reference to the identify text
+
+        function loadQuestion() {
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.innerHTML = `<img src="${currentQuizData.image}" alt="Dance Image" style="max-width: 300px; max-height: 200px;">`;
+
+            optionsElement.innerHTML = '';
+            resultElement.innerHTML = '';
+            identifyTextElement.style.display = 'block'; // Show the identify text again
+            currentQuizData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(button, option));
+                optionsElement.appendChild(button);
+            });
+        }
+
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                resultElement.innerText = 'Correct!';
+                score++;
+            } else {
+                button.classList.add('wrong');
+                resultElement.innerText = 'Wrong!';
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
+            });
+
+            identifyTextElement.style.display = 'none'; // Hide the identify text when checking answer
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 2000);
+        }
+
+        function showResult() {
+            questionElement.innerHTML = '';
+            optionsElement.innerHTML = '';
+            identifyTextElement.style.display = 'none'; // Ensure the identify text is hidden
+            const happyImage = document.createElement('img');
+            happyImage.src = 'https://tse3.mm.bing.net/th?id=OIP.7f53HUb0fEI21aRBSwlHuAHaFM&pid=Api&P=0&h=180'; 
+            happyImage.alt = 'Happy Image';
+            resultElement.appendChild(happyImage);
+            resultElement.innerHTML += `<p>You scored ${score} out of ${quizData.length}.</p>`;
+        }
+
+        // Load the first question when the page loads
+        loadQuestion();
+    </script>
+</body>
+</html>

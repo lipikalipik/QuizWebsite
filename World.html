@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="quiz1.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(154, 120, 185);
+        }
+
+        .quiz-container {
+            margin-left: 400px;
+            margin-top: 100px;
+            padding-left: 50px;
+            width: 600px;
+            height: 400px;
+            border-color: black;
+            border-width: 6px;
+            border-style: solid;
+            background-color: aliceblue;
+            border-radius: 30px;
+        }
+
+        h1 {
+            position: relative;
+            left: 70px;
+        }
+
+        #options button {
+            margin: 10px;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            display: flex;
+            border-radius: 10px;
+            border: 2px solid black; /* Add border to handle color change on hover */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        #options button:hover {
+            background-color: black;
+            color: white;
+        }
+
+        #op-container {
+            padding-left: 70px;
+        }
+       
+        
+        #result {
+            margin-top: 20px;
+            font-size: large;
+            margin-left: 40px;
+        }
+
+        .feedback {
+            font-size: large;
+            color: red;
+            margin-top: 20px;
+        }
+
+        .feedback.correct {
+            color: green;
+        }
+
+        .feedback.wrong {
+            color: red;
+        }
+
+        @media screen and (max-width: 500px) {
+            .quiz-container {
+                margin-left: 30px;
+                margin-top: 40px;
+                padding-left: 5px;
+                padding-right: 5px;
+                width: 300px;
+                height: 500px;
+                border-width: 3px;
+            }
+
+            #result {
+                position: relative;
+                right: 40px;
+            }
+
+            #op-container {
+                position: relative;
+                right: 25px;
+            }
+
+            h1 {
+                left: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>World Search</h1>
+        <div id="question"></div>
+        <div id="op-container">
+            <div id="options"></div>
+            <div id="feedback"></div>
+            <div id="result"></div>
+        </div>
+    </div>
+    
+    <script>
+        const quizData = [
+            {
+                question: "1. Which is the largest country in the World?",
+                options: ["Russia", "America", "India", "China"],
+                answer: "Russia"
+            },
+            {
+                question: "2. What is the capital of France?",
+                options: ["Paris", "London", "Berlin", "Rome"],
+                answer: "Paris"
+            },
+            {
+                question: "3. Which planet is known as the Red Planet?",
+                options: ["Jupiter", "Mars", "Saturn", "Venus"],
+                answer: "Mars"
+            },
+            {
+                question: "4. What is the chemical symbol for water?",
+                options: ["H2O", "CO2", "NaCl", "O2"],
+                answer: "H2O"
+            },
+            {
+                question: "5. Which continent is known as the 'Land of the Rising Sun'?",
+                options: ["Asia", "Europe", "North America", "Australia"],
+                answer: "Asia"
+            },
+            {
+                question: "6. Which is the smallest country in the world?",
+                options: ["Vatican City", "Monaco", "San Marino", "Liechtenstein"],
+                answer: "Vatican City"
+            },
+            {
+                question: "7. Which river is the longest in the world?",
+                options: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+                answer: "Nile"
+            },
+            {
+                question: "8. Which desert is the largest in the world?",
+                options: ["Sahara", "Arabian", "Gobi", "Kalahari"],
+                answer: "Sahara"
+            },
+            {
+                question: "9. Which ocean is the largest by surface area?",
+                options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                answer: "Pacific Ocean"
+            },
+            {
+                question: "10. What is the most populous country in the world?",
+                options: ["China", "India", "United States", "Indonesia"],
+                answer: "China"
+            },
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const resultElement = document.getElementById('result');
+
+        function loadQuestion() {
+            if (currentQuestion < quizData.length) {
+                const currentQuizData = quizData[currentQuestion];
+                questionElement.innerText = currentQuizData.question;
+
+                optionsElement.innerHTML = '';
+                feedbackElement.innerHTML = ''; // Clear previous feedback
+                currentQuizData.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.innerText = option;
+                    button.classList.add('option-btn');
+                    button.addEventListener('click', () => checkAnswer(option, button));
+                    optionsElement.appendChild(button);
+                });
+            } else {
+                showResult();
+            }
+        }
+
+        function checkAnswer(answer, selectedButton) {
+            const currentQuizData = quizData[currentQuestion];
+            const feedback = document.createElement('div');
+
+            if (answer === currentQuizData.answer) {
+                score++;
+                feedback.innerText = "Correct!";
+                feedback.classList.add('feedback', 'correct');
+            } else {
+                feedback.innerText = "Wrong!";
+                feedback.classList.add('feedback', 'wrong');
+            }
+
+            feedbackElement.innerHTML = ''; // Clear previous feedback
+            feedbackElement.appendChild(feedback);
+
+            // Highlight the correct answer
+            const buttons = optionsElement.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (button.innerText === currentQuizData.answer) {
+                    button.style.backgroundColor = 'green';
+                    button.style.color = 'white';
+                } else if (button === selectedButton) {
+                    button.style.backgroundColor = 'red';
+                    button.style.color = 'white';
+                }
+            });
+
+            currentQuestion++;
+            setTimeout(loadQuestion, 1500); // Automatically load the next question after 1.5 seconds
+        }
+
+        function showResult() {
+            questionElement.innerText = '';
+            optionsElement.innerHTML = '';
+            feedbackElement.innerHTML = '';
+
+            // Create text element
+            const textElement = document.createElement('p');
+            
+            textElement.style.fontSize = 'large';
+            textElement.style.textAlign = 'center';
+
+            // Create image element
+            const happyImage = document.createElement('img');
+            happyImage.src = 'https://tse4.mm.bing.net/th?id=OIP.ObafAoXNoml5kwOsNckVoQHaHa&pid=Api&P=0&h=180';
+            happyImage.alt = 'Happy Image';
+            happyImage.style.display = 'block';
+            happyImage.style.margin = '10px 20px 40px 10px';
+            
+
+            // Append text and image elements to resultElement
+            resultElement.appendChild(textElement);
+            resultElement.appendChild(happyImage);
+
+            // Display the user's final score
+            resultElement.innerHTML += `<p id="p11">You scored ${score} out of ${quizData.length}.</p>`;
+        }
+
+        loadQuestion(); // Load the first question
+    </script>
+</body>
+</html>

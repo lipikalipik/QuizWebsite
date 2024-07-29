@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(192, 82, 111);
+        }
+        
+        .quiz-container {
+            margin: 100px auto;
+            padding: 50px;
+            width: 600px;
+            height: auto;
+            border: 6px solid black;
+            background-color: rgb(192, 142, 201);
+            border-radius: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #options button {
+            margin: 10px;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            display: block;
+            border-radius: 10px;
+            border: none;
+        }
+
+        #options button:hover {
+            background-color: rgb(240, 150, 197);
+            color: white;
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: large;
+            text-align: center;
+        }
+
+        #result img {
+            width: 180px;
+        }
+
+        #question img {
+            max-width: 300px;
+            max-height: 200px;
+            display: block;
+            
+        }
+
+        @media screen and (max-width: 500px) {
+            .quiz-container {
+                margin: 40px 20px;
+                padding: 20px;
+                width: auto;
+                height: auto;
+                border-width: 3px;
+            }
+
+            #options button {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            #question img {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Indian Movie Quiz</h1>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="result"></div>
+    </div>
+   
+    <script>
+        const quizData = [
+            {
+                question: "1. Which movie won the National Film Award for Best Feature Film in 2020?",
+                options: ["Gully Boy", "Article 15", "Badhaai Ho", "Andhadhun"],
+                answer: "Andhadhun"
+            },
+            {
+                question: "2. Who directed the movie 'Lagaan'?",
+                options: ["Ashutosh Gowariker", "Rajkumar Hirani", "Sanjay Leela Bhansali", "Farhan Akhtar"],
+                answer: "Ashutosh Gowariker"
+            },
+            {
+                question: "3. In which movie did Amitabh Bachchan play the role of a blind man seeking revenge?",
+                options: ["Sholay", "Silsila", "Black", "Paa"],
+                answer: "Black"
+            },
+            {
+                question: "4. Which movie features the famous song 'Tum Hi Ho'?",
+                options: ["Aashiqui 2", "Dilwale", "Humpty Sharma Ki Dulhania", "Chennai Express"],
+                answer: "Aashiqui 2"
+            },
+            {
+                question: "5. Who played the lead role in the movie 'Dangal'?",
+                options: ["Aamir Khan", "Salman Khan", "Shahrukh Khan", "Ranbir Kapoor"],
+                answer: "Aamir Khan"
+            },
+            {
+                image: "https://tse4.mm.bing.net/th?id=OIP.cXv35KrL26YfkaAosJZsNwHaFj&pid=Api&P=0&h=180",
+                options: ["MS Dhoni: The Untold Story", "Chakde! India", "Padmaavat", "Gully Boy"],
+                answer: "MS Dhoni: The Untold Story"
+            },
+            {
+                image: "https://tse1.mm.bing.net/th?id=OIP.r9eVcI5jySHR9PT7xfwYFQHaEJ&pid=Api&P=0&h=180",
+                options: ["Sanju", "M.S. Dhoni: The Untold Story", "Padmaavat", "Gully Boy"],
+                answer: "Sanju"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.cd3jUju3QxvvleG2n9mWhgHaEK&pid=Api&P=0&h=180",
+                options: ["Bajirao Mastani", "Padmaavat", "Goliyon Ki Raasleela Ram-Leela", "Chennai Express"],
+                answer: "Padmaavat"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.-8MRKrH4oAWrQtAo1dWVjgHaE9&pid=Api&P=0&h=180",
+                options: ["Mary Kom", "Barfi!", "Bajirao Mastani", "Don"],
+                answer: "Mary Kom"
+            },
+            {
+                image: "https://tse3.mm.bing.net/th?id=OIP.H0Al8l7SmWfNmsdtItjdRAHaEK&pid=Api&P=0&h=180",
+                options: ["Deewar", "Sholay", "Zanjeer", "Trishul"],
+                answer: "Deewar"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const resultElement = document.getElementById('result');
+        
+        function loadQuestion() {
+            // Clear previous results
+            resultElement.innerHTML = '';
+
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.innerHTML = '';
+
+            if (currentQuizData.image) {
+                questionElement.innerHTML = `
+                    <p>Identify the below image:</p>
+                    <img src="${currentQuizData.image}" alt="Question Image">
+                `;
+            } else {
+                questionElement.innerText = currentQuizData.question;
+            }
+        
+            optionsElement.innerHTML = '';
+            currentQuizData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(button, option));
+                optionsElement.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                score++;
+            } else {
+                button.classList.add('wrong');
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
+            });
+
+            // Wait for 1 second before loading the next question
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000); // Change the delay time (in milliseconds) here
+        }
+
+        function showResult() {
+            questionElement.innerHTML = '';
+            optionsElement.innerHTML = '';
+        
+            const happyImage = document.createElement('img');
+            happyImage.src = "https://tse1.mm.bing.net/th?id=OIP.G0EvddB5TL5eqKU7U-uXqgHaHa&pid=Api&P=0&h=180"; 
+            happyImage.alt = 'Happy Image';
+        
+            resultElement.appendChild(happyImage);
+            resultElement.innerHTML += `<p>You scored ${score} out of ${quizData.length}.</p>`;
+        }
+        
+        loadQuestion();
+    </script>
+</body>
+</html>

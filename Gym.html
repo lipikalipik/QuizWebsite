@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(231, 184, 31);
+        }
+        
+        .quiz-container {
+            margin: 100px auto;
+            padding: 50px;
+            width: 600px;
+            height: auto;
+            border: 6px solid black;
+            background-color: rgb(143, 228, 226);
+            border-radius: 30px;
+            
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #options button {
+            margin: 10px;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            display: block;
+            border-radius: 10px;
+            border: none;
+        }
+
+        #options button:hover {
+            background-color: rgb(214, 186, 229);
+            color: white;
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: large;
+            text-align: center;
+        }
+
+        #result img {
+            width: 180px;
+        }
+
+        #question img {
+            max-width: 300px;
+            max-height: 200px;
+            display: block;
+       
+        }
+        #options {
+            margin-left: 5px;
+        }
+
+        @media screen and (max-width: 500px) {
+            .quiz-container {
+                margin: 40px 20px;
+                padding: 20px;
+                width: auto;
+                height: auto;
+                border-width: 3px;
+            }
+
+            #options button {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            #question img {
+                width: 100%;
+                height: auto;
+               margin-right:200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>GYM Quiz</h1>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="result"></div>
+    </div>
+   
+    <script>
+        const quizData = [
+        {
+                question: "1. Which exercise primarily targets the chest muscles?",
+                options: ["Squats", "Deadlifts", "Bench Press", "Lunges"],
+                answer: "Bench Press"
+            },
+            {
+                question: "2. What is the recommended rest period between strength training sets?",
+                options: ["30 seconds", "1 minute", "2-3 minutes", "5 minutes"],
+                answer: "2-3 minutes"
+            },
+            {
+                question: "3. Which of these is a compound exercise?",
+                options: ["Bicep Curls", "Tricep Dips", "Leg Press", "Hamstring Curls"],
+                answer: "Leg Press"
+            },
+            {
+                question: "4. What is the term for the exercise of holding a weight in a fixed position?",
+                options: ["Dynamic Stretching", "Static Hold", "Repetition", "Isolation"],
+                answer: "Static Hold"
+            },
+            {
+                question: "5. What is a common benefit of high-intensity interval training (HIIT)?",
+                options: ["Improved Flexibility", "Increased Muscle Mass", "Enhanced Cardiovascular Fitness", "Greater Strength Gains"],
+                answer: "Enhanced Cardiovascular Fitness"
+            },
+            {
+                image: "https://tse3.mm.bing.net/th?id=OIP._9zIImB2Tft7K2o5Qd9i8wHaEU&pid=Api&P=0&h=180",
+                options: ["Barbell Curl", "Dumbbell Bench Press", "Pull-Up", "Leg Extension"],
+                answer: "Dumbbell Bench Press"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.p3mDUl_7TLB1tE4jQ6va0AHaEy&pid=Api&P=0&h=180",
+                options: ["Squat", "Deadlift", "Shoulder Press", "Lateral Raise"],
+                answer: "Deadlift"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.aYvWbqIMeuKOHWY3tGhbgAHaDt&pid=Api&P=0&h=180",
+                options: ["Chest Fly", "Pull-Up", "Plank", "Crunches"],
+                answer: "Chest Fly"
+            },
+            {
+                image: "https://tse4.mm.bing.net/th?id=OIP.BcWtWjKy-m4MWk8ynIpgwQHaEx&pid=Api&P=0&h=180",
+                options: ["Bicep Curl", "Lat Pulldown", "Leg Press", "Seated Row"],
+                answer: "Lat Pulldown"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.ld9gje5L1m7LLVJ7Yoxk4gHaEK&pid=Api&P=0&h=180",
+                options: ["Barbell Squat", "Leg Curl", "Standing Calf Raise", "Ab Rollout"],
+                answer: "Ab Rollout"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const resultElement = document.getElementById('result');
+        
+        function loadQuestion() {
+            // Clear previous results
+            resultElement.innerHTML = '';
+
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.innerHTML = '';
+
+            if (currentQuizData.image) {
+                questionElement.innerHTML = `
+                    <p>Identify the exercise shown in the image below:</p>
+                    <img src="${currentQuizData.image}" alt="Question Image">
+                `;
+            } else {
+                questionElement.innerText = currentQuizData.question;
+            }
+        
+            optionsElement.innerHTML = '';
+            currentQuizData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(button, option));
+                optionsElement.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                score++;
+            } else {
+                button.classList.add('wrong');
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
+            });
+
+            // Wait for 1 second before loading the next question
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000); // Change the delay time (in milliseconds) here
+        }
+
+        function showResult() {
+            questionElement.innerHTML = '';
+            optionsElement.innerHTML = '';
+        
+            const happyImage = document.createElement('img');
+            happyImage.src = "https://tse2.mm.bing.net/th?id=OIP.mLTTtdVtFTeINNqvU-G6cQHaFq&pid=Api&P=0&h=180"; 
+            happyImage.alt = 'Happy Image';
+        
+            resultElement.appendChild(happyImage);
+            resultElement.innerHTML += `<p>You scored ${score} out of ${quizData.length}.</p>`;
+        }
+        
+        loadQuestion();
+    </script>
+</body>
+</html>

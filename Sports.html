@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sport Identification Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: rgb(161, 199, 242);
+        }
+
+        .quiz-container {
+            margin: 100px auto;
+            padding: 20px;
+            width: 600px;
+            border-color: black;
+            border-width: 6px;
+            border-style: solid;
+            background-color: rgb(238, 82, 165);
+            border-radius: 30px;
+        }
+
+        h1 {
+            color: black;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #options button {
+            margin: 10px;
+            padding: 15px 30px;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            display: flex;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        #options button:hover {
+            background-color: rgb(234, 134, 235);
+            color: black;
+        }
+
+        #op-container {
+            padding: 20px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: large;
+            text-align: center; /* Center the text */
+        }
+
+        #result img {
+            display: block; /* Center the image */
+            margin: 0 auto; /* Center the image */
+        }
+
+        .feedback {
+            font-size: large;
+            color: red;
+            margin-top: 10px;
+        }
+
+        .feedback.correct {
+            color: green;
+        }
+
+        .feedback.wrong {
+            color: red;
+        }
+
+        p {
+            font-size: larger;
+            font-weight: bold;
+            color: black;
+            text-align: left;
+            margin-top: 20px;
+            margin-left: 20px;
+        }
+        #result p{
+            margin-left:140px;
+        }
+
+        @media screen and (max-width: 500px) {
+            .quiz-container {
+                margin-left: 20px;
+                margin-top: 20px;
+                padding-left: 5px;
+                padding-right: 5px;
+                width: 300px;
+                border-width: 3px;
+            }
+
+            #options button {
+                width: 100%;
+            }
+
+            #question img {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Let's Play</h1>
+    <div id="question"></div>
+    <div id="op-container">
+        <div id="options"></div>
+        <div id="feedback"></div> 
+        <div id="result"></div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            image: "https://tse3.mm.bing.net/th?id=OIP.ZsvT_ijNVEMERBfT2qTOlgHaE7&pid=Api&P=0&h=180",
+            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+            answer: "Golf"
+        },
+        {
+            image: "https://tse3.mm.bing.net/th?id=OIP.8TdVNEVQNyAXtVEBcnupmQHaEk&pid=Api&P=0&h=180",
+            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+            answer: "Kabaddi"
+        },
+        {
+            image: "https://tse2.mm.bing.net/th?id=OIP.q-u-zr0kgvD541XJ5LKH2wHaE8&pid=Api&P=0&h=180",
+            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+            answer: "Hockey"
+        },
+        {
+            image: "https://tse1.mm.bing.net/th?id=OIP.6XgcjLWrFOLQx69uwSsDvAHaEK&pid=Api&P=0&h=180",
+            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+            answer: "Basket Ball"
+        },
+        {
+            image: "https://assets-global.website-files.com/5ca5fe687e34be0992df1fbe/6364a8f5ebed65e34f1809f7_OLAIAN%20Protection%20de%20la%20tete%20en%20surf%20(1).jpg",
+            options: ["Basket Ball", "Golf", "Surfing", "Kabaddi"],
+            answer: "Surfing"
+        },
+        {
+            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQznchDp_OIXNpcTPkl88twVuRdMwFFIf7zDpkCznI5BdZC311EldvQcyS9Lg3oDr4pu3c&usqp=CAU",
+            options: ["Badmiton", "Tennis", "Hockey", "Golf"],
+            answer: "Tennis"
+        },
+        {
+            image: "https://th.bing.com/th/id/OIP.qzoCgOfzXrzXVC-JjPTdsgHaEo?w=326&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+            options: ["Boxing", "Golf", "Hockey", "Kabaddi"],
+            answer: "Boxing"
+        },
+        {
+            image: "https://www.aspistrategist.org.au/wp-content/uploads/2023/03/262830589_454465212709492_5615492202558677142_n.jpg",
+            options: ["Basket Ball", "Golf", "Rugby", "Kabaddi"],
+            answer: "Rugby"
+        },
+        {
+            image: "https://tse2.mm.bing.net/th?id=OIP.0n8g07-uDUT-Mtr_EGJ2IwHaE7&pid=Api&P=0&h=180",
+            options: ["Boxing", "Wrestling", "Hockey", "Kabaddi"],
+            answer: "Wrestling"
+        },
+        {
+            image: "http://cdn.historycollection.co/wp-content/uploads/2017/06/baseball-1-1024x681.jpg",
+            options: ["Basket Ball", "Cricket", "Rugby", "Baseball"],
+            answer: "Baseball"
+        },
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const feedbackElement = document.getElementById('feedback');
+    const resultElement = document.getElementById('result');
+
+    function loadQuestion() {
+        const currentQuizData = quizData[currentQuestion];
+        questionElement.innerHTML = `
+            <p>Identify the sport below:</p>
+            <img src="${currentQuizData.image}" alt="Sport Image" style="max-width: 300px; max-height: 200px;">
+        `;
+
+        optionsElement.innerHTML = '';
+        feedbackElement.innerHTML = ''; 
+        currentQuizData.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('option-btn');
+            button.addEventListener('click', () => checkAnswer(option, button));
+            optionsElement.appendChild(button);
+        });
+    }
+
+    function checkAnswer(answer, selectedButton) {
+        const currentQuizData = quizData[currentQuestion];
+        const feedback = document.createElement('div');
+
+        if (answer === currentQuizData.answer) {
+            score++;
+            feedback.innerText = "Correct!";
+            feedback.classList.add('feedback', 'correct');
+        } else {
+            feedback.innerText = "Wrong!";
+            feedback.classList.add('feedback', 'wrong');
+        }
+
+        feedbackElement.innerHTML = ''; 
+        feedbackElement
+        feedbackElement.appendChild(feedback);
+
+        // Highlight the correct answer
+        const buttons = optionsElement.querySelectorAll('button');
+        buttons.forEach(button => {
+            if (button.innerText === currentQuizData.answer) {
+                button.style.backgroundColor = 'green';
+                button.style.color = 'white';
+            } else if (button === selectedButton) {
+                button.style.backgroundColor = 'red';
+                button.style.color = 'white';
+            }
+        });
+
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            setTimeout(loadQuestion, 1500); // Load next question after 1.5 seconds
+        } else {
+            setTimeout(showResult, 1500); // Show result after 1.5 seconds
+        }
+    }
+
+    function showResult() {
+        questionElement.innerHTML = '';
+        optionsElement.innerHTML = '';
+        feedbackElement.innerHTML = '';
+
+        // Create image element for the happy image
+        const happyImage = document.createElement('img');
+        happyImage.src = 'https://tse3.mm.bing.net/th?id=OIP.Av570e69QjKqL7J0osK28QHaEK&pid=Api&P=0&h=180'; // Replace with your desired image
+        happyImage.alt = 'Happy Image';
+
+        // Append image element to resultElement
+        resultElement.appendChild(happyImage);
+
+        // Display the user's final score
+        resultElement.innerHTML += `<p>You scored ${score} out of ${quizData.length}.</p>`;
+    }
+
+    // Load the first question when the page loads
+    loadQuestion();
+</script>
+
+</body>
+</html>
