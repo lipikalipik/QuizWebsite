@@ -15,10 +15,12 @@
             margin: 100px auto;
             padding: 50px;
             width: 600px;
-            height: 400px;
+            min-height: 400px;
             border: 6px solid black;
             background-color: coral;
             border-radius: 30px;
+            position: relative;
+            transition: height 0.3s;
         }
 
         h1 {
@@ -56,6 +58,64 @@
             margin-top: 20px;
             font-size: large;
             text-align: center;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-size: large;
+            text-align: center;
+            color: black;
+        }
+
+        .timer-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: black;
+            z-index: 1000;
+        }
+
+        .timer-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .timer-svg circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .timer-svg .timer-background {
+            stroke: lightgray;
+        }
+
+        .timer-svg .timer-path {
+            stroke: green;
+            stroke-dasharray: 283; /* Circumference of the circle */
+            stroke-dashoffset: 283; /* Start with full circle */
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            text-align: center;
+            line-height: 80px; /* Same as the timer container height */
+            color: black;
+            font-size: 1.5rem;
         }
 
         @media screen and (max-width: 500px) {
@@ -71,14 +131,34 @@
                 width: 100%;
                 margin: 10px 0;
             }
+
+            .timer-container {
+                top: 10px;
+                right: 10px;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .timer-text {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="quiz-container">
+    <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+            <circle class="timer-background" cx="50" cy="50" r="45"></circle>
+            <circle class="timer-path" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="timer-text" id="timer-text">60</div>
+    </div>
+    <div class="quiz-container" id="quiz-container">
         <h1>Yummy!</h1>
         <div id="question"></div>
         <div id="options"></div>
+        <div class="feedback" id="feedback"></div>
         <div id="result"></div>
     </div>
    
@@ -138,16 +218,23 @@
         
         let currentQuestion = 0;
         let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
         
+        const quizContainer = document.getElementById('quiz-container');
         const questionElement = document.getElementById('question');
         const optionsElement = document.getElementById('options');
         const resultElement = document.getElementById('result');
+        const feedbackElement = document.getElementById('feedback');
+        const timerTextElement = document.getElementById('timer-text');
+        const timerPathElement = document.querySelector('.timer-path');
         
         function loadQuestion() {
             const currentQuizData = quizData[currentQuestion];
             questionElement.innerText = currentQuizData.question;
         
             optionsElement.innerHTML = '';
+            feedbackElement.innerText = ''; // Clear previous feedback
             currentQuizData.options.forEach(option => {
                 const button = document.createElement('button');
                 button.innerText = option;
@@ -161,43 +248,85 @@
             const currentQuizData = quizData[currentQuestion];
             if (answer === currentQuizData.answer) {
                 button.classList.add('correct');
+                feedbackElement.innerText = "Correct!"; // Feedback for correct answer
                 score++;
             } else {
                 button.classList.add('wrong');
+                feedbackElement.innerText = "Wrong! The correct answer is: " + currentQuizData.answer; // Feedback for wrong answer
                 Array.from(optionsElement.children).forEach(btn => {
                     if (btn.innerText === currentQuizData.answer) {
                         btn.classList.add('correct');
                     }
                 });
             }
-            Array.from(optionsElement.children).forEach(btn => {
-                btn.disabled = true; // Disable all buttons after selection
-            });
+            disableOptions();
+            setTimeout(loadNextQuestion, 2000);
+        }
 
-            // Load the next question after a short delay
-            setTimeout(() => {
-                currentQuestion++;
-                if (currentQuestion < quizData.length) {
-                    loadQuestion();
-                } else {
-                    showResult();
-                }
-            }, 2000); // 2 seconds delay before loading the next question
+        function disableOptions() {
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function loadNextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                clearInterval(timerInterval);
+                showResult();
+            }
         }
 
         function showResult() {
             questionElement.innerText = '';
             optionsElement.innerHTML = '';
         
+            const timeTaken = 60 - timeLeft;
+            const percentage = (score / quizData.length) * 100;
+        
             const happyImage = document.createElement('img');
-            happyImage.src = "https://tse1.mm.bing.net/th?id=OIP.J2uEZydoZ-GFxfLsMnac_wHaHa&pid=Api&P=0&h=180"; 
+            happyImage.src = "https://tse4.mm.bing.net/th?id=OIP.ObafAoXNoml5kwOsNckVoQHaHa&pid=Api&P=0&h=180";
             happyImage.alt = 'Happy Image';
         
-            resultElement.appendChild(happyImage);
-            resultElement.innerHTML += `<p id="re">You scored ${score} out of ${quizData.length}.</p>`;
+            resultElement.style.display = 'block';
+            resultElement.innerHTML = `
+                <img src="${happyImage.src}" alt="${happyImage.alt}">
+                <p id="re">You scored ${score} out of ${quizData.length}.</p>
+                <p id="re">Accuracy: ${percentage.toFixed(2)}%</p>
+                <p id="time-taken">Time taken: ${timeTaken} seconds</p>
+            `;
+
+            quizContainer.style.height = `${resultElement.clientHeight}px`;
+
         }
-        
-        loadQuestion();
+
+        function startTimer() {
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            timerPathElement.style.strokeDasharray = circumference;
+            timerPathElement.style.strokeDashoffset = circumference;
+
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timerTextElement.textContent = timeLeft;
+
+                    const offset = circumference * (timeLeft / 60);
+                    timerPathElement.style.strokeDashoffset = offset;
+                } else {
+                    clearInterval(timerInterval);
+                    disableOptions();
+                    showResult();
+                }
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startTimer();
+            loadQuestion();
+        });
     </script>
 </body>
 </html>
