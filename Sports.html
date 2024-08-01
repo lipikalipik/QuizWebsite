@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sport Identification Quiz</title>
+    <title>Sports Quiz</title>
     <style>
+        /* Add your CSS styles here */
         body {
             font-family: Arial, sans-serif;
             background-color: rgb(161, 199, 242);
         }
-
+        
         .quiz-container {
             margin: 100px auto;
-            padding: 20px;
+            padding: 50px;
             width: 600px;
-            border-color: black;
-            border-width: 6px;
-            border-style: solid;
+            min-height: 400px;
+            border: 6px solid black;
             background-color: rgb(238, 82, 165);
             border-radius: 30px;
+            position: relative;
+            transition: height 0.3s;
         }
 
         h1 {
-            color: black;
-            margin-bottom: 20px;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         #options button {
@@ -33,228 +34,316 @@
             cursor: pointer;
             width: 200px;
             height: 50px;
-            display: flex;
+            display: block;
             border-radius: 10px;
-            border: 2px solid transparent;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            border: none;
         }
-
+#question img{
+    position: relative;
+    right:150px;
+}
         #options button:hover {
             background-color: rgb(234, 134, 235);
-            color: black;
+            color: white;
         }
 
-        #op-container {
-            padding: 20px;
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
         }
 
         #result {
             margin-top: 20px;
             font-size: large;
-            text-align: center; /* Center the text */
+            text-align: center;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
         }
 
         #result img {
-            display: block; /* Center the image */
-            margin: 0 auto; /* Center the image */
+            width: 180px;
         }
 
         .feedback {
-            font-size: large;
-            color: red;
             margin-top: 10px;
-        }
-
-        .feedback.correct {
-            color: green;
-        }
-
-        .feedback.wrong {
-            color: red;
-        }
-
-        p {
-            font-size: larger;
-            font-weight: bold;
+            font-size: large;
+            text-align: center;
             color: black;
-            text-align: left;
-            margin-top: 20px;
-            margin-left: 20px;
-        }
-        #result p{
-            margin-left:140px;
         }
 
+        .timer-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: black;
+            z-index: 1000;
+        }
+
+        .timer-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .timer-svg circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .timer-svg .timer-background {
+            stroke: lightgray;
+        }
+
+        .timer-svg .timer-path {
+            stroke: green;
+            stroke-dasharray: 283; /* Circumference of the circle */
+            stroke-dashoffset: 283; /* Start with full circle */
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            text-align: center;
+            line-height: 80px; /* Same as the timer container height */
+            color: black;
+            font-size: 1.5rem;
+        }
+        #result img{
+            width:300px;
+            height:160px;
+        }
+
+        /* Responsive styles */
         @media screen and (max-width: 500px) {
             .quiz-container {
-                margin-left: 20px;
-                margin-top: 20px;
-                padding-left: 5px;
-                padding-right: 5px;
-                width: 300px;
+                margin: 40px 20px;
+                padding: 20px;
+                width: auto;
+                height: auto;
                 border-width: 3px;
             }
 
             #options button {
                 width: 100%;
+                margin: 10px 0;
             }
 
-            #question img {
-                width: 100%;
-                height: auto;
+            .timer-container {
+                top: 10px;
+                right: 10px;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .timer-text {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+            <circle class="timer-background" cx="50" cy="50" r="45"></circle>
+            <circle class="timer-path" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="timer-text" id="timer-text">60</div>
+    </div>
 
-<div class="quiz-container">
-    <h1>Let's Play</h1>
-    <div id="question"></div>
-    <div id="op-container">
+    <div class="quiz-container" id="quiz-container">
+        <h1>Let's Play</h1>
+        <div id="question"></div>
         <div id="options"></div>
-        <div id="feedback"></div> 
+        <div id="feedback" class="feedback"></div>
         <div id="result"></div>
     </div>
-</div>
-
-<script>
-    const quizData = [
-        {
-            image: "https://tse3.mm.bing.net/th?id=OIP.ZsvT_ijNVEMERBfT2qTOlgHaE7&pid=Api&P=0&h=180",
-            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
-            answer: "Golf"
-        },
-        {
-            image: "https://tse3.mm.bing.net/th?id=OIP.8TdVNEVQNyAXtVEBcnupmQHaEk&pid=Api&P=0&h=180",
-            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
-            answer: "Kabaddi"
-        },
-        {
-            image: "https://tse2.mm.bing.net/th?id=OIP.q-u-zr0kgvD541XJ5LKH2wHaE8&pid=Api&P=0&h=180",
-            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
-            answer: "Hockey"
-        },
-        {
-            image: "https://tse1.mm.bing.net/th?id=OIP.6XgcjLWrFOLQx69uwSsDvAHaEK&pid=Api&P=0&h=180",
-            options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
-            answer: "Basket Ball"
-        },
-        {
-            image: "https://assets-global.website-files.com/5ca5fe687e34be0992df1fbe/6364a8f5ebed65e34f1809f7_OLAIAN%20Protection%20de%20la%20tete%20en%20surf%20(1).jpg",
-            options: ["Basket Ball", "Golf", "Surfing", "Kabaddi"],
-            answer: "Surfing"
-        },
-        {
-            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQznchDp_OIXNpcTPkl88twVuRdMwFFIf7zDpkCznI5BdZC311EldvQcyS9Lg3oDr4pu3c&usqp=CAU",
-            options: ["Badmiton", "Tennis", "Hockey", "Golf"],
-            answer: "Tennis"
-        },
-        {
-            image: "https://th.bing.com/th/id/OIP.qzoCgOfzXrzXVC-JjPTdsgHaEo?w=326&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
-            options: ["Boxing", "Golf", "Hockey", "Kabaddi"],
-            answer: "Boxing"
-        },
-        {
-            image: "https://www.aspistrategist.org.au/wp-content/uploads/2023/03/262830589_454465212709492_5615492202558677142_n.jpg",
-            options: ["Basket Ball", "Golf", "Rugby", "Kabaddi"],
-            answer: "Rugby"
-        },
-        {
-            image: "https://tse2.mm.bing.net/th?id=OIP.0n8g07-uDUT-Mtr_EGJ2IwHaE7&pid=Api&P=0&h=180",
-            options: ["Boxing", "Wrestling", "Hockey", "Kabaddi"],
-            answer: "Wrestling"
-        },
-        {
-            image: "http://cdn.historycollection.co/wp-content/uploads/2017/06/baseball-1-1024x681.jpg",
-            options: ["Basket Ball", "Cricket", "Rugby", "Baseball"],
-            answer: "Baseball"
-        },
-    ];
-
-    let currentQuestion = 0;
-    let score = 0;
-
-    const questionElement = document.getElementById('question');
-    const optionsElement = document.getElementById('options');
-    const feedbackElement = document.getElementById('feedback');
-    const resultElement = document.getElementById('result');
-
-    function loadQuestion() {
-        const currentQuizData = quizData[currentQuestion];
-        questionElement.innerHTML = `
-            <p>Identify the sport below:</p>
-            <img src="${currentQuizData.image}" alt="Sport Image" style="max-width: 300px; max-height: 200px;">
-        `;
-
-        optionsElement.innerHTML = '';
-        feedbackElement.innerHTML = ''; 
-        currentQuizData.options.forEach(option => {
-            const button = document.createElement('button');
-            button.innerText = option;
-            button.classList.add('option-btn');
-            button.addEventListener('click', () => checkAnswer(option, button));
-            optionsElement.appendChild(button);
-        });
-    }
-
-    function checkAnswer(answer, selectedButton) {
-        const currentQuizData = quizData[currentQuestion];
-        const feedback = document.createElement('div');
-
-        if (answer === currentQuizData.answer) {
-            score++;
-            feedback.innerText = "Correct!";
-            feedback.classList.add('feedback', 'correct');
-        } else {
-            feedback.innerText = "Wrong!";
-            feedback.classList.add('feedback', 'wrong');
-        }
-
-        feedbackElement.innerHTML = ''; 
-        feedbackElement
-        feedbackElement.appendChild(feedback);
-
-        // Highlight the correct answer
-        const buttons = optionsElement.querySelectorAll('button');
-        buttons.forEach(button => {
-            if (button.innerText === currentQuizData.answer) {
-                button.style.backgroundColor = 'green';
-                button.style.color = 'white';
-            } else if (button === selectedButton) {
-                button.style.backgroundColor = 'red';
-                button.style.color = 'white';
+   
+    <script>
+        const quizData = [
+            {
+                image: "https://tse3.mm.bing.net/th?id=OIP.ZsvT_ijNVEMERBfT2qTOlgHaE7&pid=Api&P=0&h=180",
+                options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+                answer: "Golf"
+            },
+            {
+                image: "https://tse3.mm.bing.net/th?id=OIP.8TdVNEVQNyAXtVEBcnupmQHaEk&pid=Api&P=0&h=180",
+                options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+                answer: "Kabaddi"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.q-u-zr0kgvD541XJ5LKH2wHaE8&pid=Api&P=0&h=180",
+                options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+                answer: "Hockey"
+            },
+            {
+                image: "https://tse1.mm.bing.net/th?id=OIP.6XgcjLWrFOLQx69uwSsDvAHaEK&pid=Api&P=0&h=180",
+                options: ["Basket Ball", "Golf", "Hockey", "Kabaddi"],
+                answer: "Basket Ball"
+            },
+            {
+                image: "https://assets-global.website-files.com/5ca5fe687e34be0992df1fbe/6364a8f5ebed65e34f1809f7_OLAIAN%20Protection%20de%20la%20tete%20en%20surf%20(1).jpg",
+                options: ["Basket Ball", "Golf", "Surfing", "Kabaddi"],
+                answer: "Surfing"
+            },
+            {
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQznchDp_OIXNpcTPkl88twVuRdMwFFIf7zDpkCznI5BdZC311EldvQcyS9Lg3oDr4pu3c&usqp=CAU",
+                options: ["Badmiton", "Tennis", "Hockey", "Golf"],
+                answer: "Tennis"
+            },
+            {
+                image: "https://th.bing.com/th/id/OIP.qzoCgOfzXrzXVC-JjPTdsgHaEo?w=326&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7",
+                options: ["Boxing", "Golf", "Hockey", "Kabaddi"],
+                answer: "Boxing"
+            },
+            {
+                image: "https://www.aspistrategist.org.au/wp-content/uploads/2023/03/262830589_454465212709492_5615492202558677142_n.jpg",
+                options: ["Basket Ball", "Golf", "Rugby", "Kabaddi"],
+                answer: "Rugby"
+            },
+            {
+                image: "https://tse2.mm.bing.net/th?id=OIP.0n8g07-uDUT-Mtr_EGJ2IwHaE7&pid=Api&P=0&h=180",
+                options: ["Boxing", "Wrestling", "Hockey", "Kabaddi"],
+                answer: "Wrestling"
+            },
+            {
+                image: "http://cdn.historycollection.co/wp-content/uploads/2017/06/baseball-1-1024x681.jpg",
+                options: ["Basket Ball", "Cricket", "Rugby", "Baseball"],
+                answer: "Baseball"
             }
-        });
-
-        currentQuestion++;
-        if (currentQuestion < quizData.length) {
-            setTimeout(loadQuestion, 1500); // Load next question after 1.5 seconds
-        } else {
-            setTimeout(showResult, 1500); // Show result after 1.5 seconds
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval;
+        
+        const quizContainer = document.getElementById('quiz-container');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const resultElement = document.getElementById('result');
+        const feedbackElement = document.getElementById('feedback');
+        const timerTextElement = document.getElementById('timer-text');
+        const timerPathElement = document.querySelector('.timer-path');
+        
+        function loadQuestion() {
+            feedbackElement.innerText = ''; // Clear previous feedback
+            const currentQuizData = quizData[currentQuestion];
+            
+            questionElement.innerText = "Identify the sports below:";
+            if (currentQuizData.image) {
+                questionElement.innerHTML += `<img src="${currentQuizData.image}" alt="Question Image" style="max-width: 300px; max-height: 200px; display: block; margin: 20px auto;">`;
+            }
+        
+            optionsElement.innerHTML = '';
+            currentQuizData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(button, option));
+                optionsElement.appendChild(button);
+            });
         }
-    }
+        
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                feedbackElement.innerText = "Correct!"; // Feedback for correct answer
+                score++;
+            } else {
+                button.classList.add('wrong');
+                feedbackElement.innerText = `Wrong! The correct answer is ${currentQuizData.answer}.`;
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            disableOptions();
+            setTimeout(loadNextQuestion, 2000); // Increase delay to allow users to read the feedback
+        }
 
-    function showResult() {
-        questionElement.innerHTML = '';
-        optionsElement.innerHTML = '';
-        feedbackElement.innerHTML = '';
+        function disableOptions() {
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
+            });
+        }
 
-        // Create image element for the happy image
-        const happyImage = document.createElement('img');
-        happyImage.src = 'https://tse3.mm.bing.net/th?id=OIP.Av570e69QjKqL7J0osK28QHaEK&pid=Api&P=0&h=180'; // Replace with your desired image
-        happyImage.alt = 'Happy Image';
+        function loadNextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                clearInterval(timerInterval);
+                showResult();
+            }
+        }
 
-        // Append image element to resultElement
-        resultElement.appendChild(happyImage);
+        function showResult() {
+            questionElement.innerHTML = '';
+            optionsElement.innerHTML = '';
+            feedbackElement.innerText = ''; // Clear feedback before showing result
+        
+            const timeTaken = 60 - timeLeft;
+            const percentage = (score / quizData.length) * 100;
 
-        // Display the user's final score
-        resultElement.innerHTML += `<p>You scored ${score} out of ${quizData.length}.</p>`;
-    }
+            const happyImage = document.createElement('img');
+            happyImage.src = 'https://tse3.mm.bing.net/th?id=OIP.Av570e69QjKqL7J0osK28QHaEK&pid=Api&P=0&h=180';
+            happyImage.alt = 'Happy Image';
+        
+            resultElement.style.display = 'block';
+            resultElement.innerHTML = `
+                <img src="${happyImage.src}" alt="${happyImage.alt}">
+                <p>You scored ${score} out of ${quizData.length}.</p>
+                <p>Accuracy: ${percentage.toFixed(2)}%</p>
+                <p>Time taken: ${timeTaken} seconds</p>
+            `;
 
-    // Load the first question when the page loads
-    loadQuestion();
-</script>
+            quizContainer.style.height = `${resultElement.clientHeight}px`;
+        }
 
+        function startTimer() {
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            timerPathElement.style.strokeDasharray = circumference;
+            timerPathElement.style.strokeDashoffset = circumference;
+
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timerTextElement.textContent = timeLeft;
+
+                    const offset = circumference * (timeLeft / 60);
+                    timerPathElement.style.strokeDashoffset = offset;
+                } else {
+                    clearInterval(timerInterval);
+                    disableOptions();
+                    showResult();
+                }
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startTimer();
+            loadQuestion();
+        });
+    </script>
 </body>
 </html>
