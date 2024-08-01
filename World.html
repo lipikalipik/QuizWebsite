@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App</title>
+    <title>World Quiz</title>
     <link rel="stylesheet" href="quiz1.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: rgb(154, 120, 185);
         }
-
+        
         .quiz-container {
-            margin-left: 400px;
-            margin-top: 100px;
-            padding-left: 50px;
+            margin: 100px auto;
+            padding: 50px;
             width: 600px;
-            height: 400px;
-            border-color: black;
-            border-width: 6px;
-            border-style: solid;
-            background-color: aliceblue;
+            min-height: 400px;
+            border: 6px solid black;
+            background-color: rgb(166, 207, 242);
             border-radius: 30px;
+            position: relative;
+            transition: height 0.3s;
         }
 
         h1 {
-            position: relative;
-            left: 70px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         #options button {
@@ -35,84 +34,137 @@
             cursor: pointer;
             width: 200px;
             height: 50px;
-            display: flex;
+            display: block;
             border-radius: 10px;
-            border: 2px solid black; /* Add border to handle color change on hover */
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            border: none;
         }
-        
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+    
         #options button:hover {
             background-color: black;
             color: white;
         }
 
-        #op-container {
-            padding-left: 70px;
-        }
-       
-        
         #result {
             margin-top: 20px;
             font-size: large;
-            margin-left: 40px;
+            text-align: center;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
         }
 
         .feedback {
+            margin-top: 10px;
             font-size: large;
-            color: red;
-            margin-top: 20px;
+            text-align: center;
+            color: black;
         }
 
-        .feedback.correct {
-            color: green;
+        .timer-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: black;
+            z-index: 1000;
         }
 
-        .feedback.wrong {
-            color: red;
+        .timer-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .timer-svg circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .timer-svg .timer-background {
+            stroke: lightgray;
+        }
+
+        .timer-svg .timer-path {
+            stroke: green;
+            stroke-dasharray: 283; /* Circumference of the circle */
+            stroke-dashoffset: 283; /* Start with full circle */
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            text-align: center;
+            line-height: 80px; /* Same as the timer container height */
+            color: black;
+            font-size: 1.5rem;
         }
 
         @media screen and (max-width: 500px) {
             .quiz-container {
-                margin-left: 30px;
-                margin-top: 40px;
-                padding-left: 5px;
-                padding-right: 5px;
-                width: 300px;
-                height: 500px;
+                margin: 40px 20px;
+                padding: 20px;
+                width: auto;
+                height: auto;
                 border-width: 3px;
             }
 
-            #result {
-                position: relative;
-                right: 40px;
+            #options button {
+                width: 100%;
+                margin: 10px 0;
             }
 
-            #op-container {
-                position: relative;
-                right: 25px;
+            .timer-container {
+                top: 10px;
+                right: 10px;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
             }
 
-            h1 {
-                left: 30px;
+            .timer-text {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-
-    <div class="quiz-container">
-        <h1>World Search</h1>
-        <div id="question"></div>
-        <div id="op-container">
-            <div id="options"></div>
-            <div id="feedback"></div>
-            <div id="result"></div>
-        </div>
+    <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+            <circle class="timer-background" cx="50" cy="50" r="45"></circle>
+            <circle class="timer-path" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="timer-text" id="timer-text">60</div>
     </div>
-    
+    <div class="quiz-container" id="quiz-container">
+        <h1>World Search </h1>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <div id="result"></div>
+    </div>
+   
     <script>
         const quizData = [
-            {
+        {
                 question: "1. Which is the largest country in the World?",
                 options: ["Russia", "America", "India", "China"],
                 answer: "Russia"
@@ -163,94 +215,118 @@
                 answer: "China"
             },
         ];
-
+        
         let currentQuestion = 0;
         let score = 0;
-
+        let timeLeft = 60;
+        let timerInterval;
+        
+        const quizContainer = document.getElementById('quiz-container');
         const questionElement = document.getElementById('question');
         const optionsElement = document.getElementById('options');
-        const feedbackElement = document.getElementById('feedback');
         const resultElement = document.getElementById('result');
-
+        const feedbackElement = document.getElementById('feedback');
+        const timerTextElement = document.getElementById('timer-text');
+        const timerPathElement = document.querySelector('.timer-path');
+        
         function loadQuestion() {
-            if (currentQuestion < quizData.length) {
-                const currentQuizData = quizData[currentQuestion];
-                questionElement.innerText = currentQuizData.question;
-
-                optionsElement.innerHTML = '';
-                feedbackElement.innerHTML = ''; // Clear previous feedback
-                currentQuizData.options.forEach(option => {
-                    const button = document.createElement('button');
-                    button.innerText = option;
-                    button.classList.add('option-btn');
-                    button.addEventListener('click', () => checkAnswer(option, button));
-                    optionsElement.appendChild(button);
-                });
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.innerText = currentQuizData.question;
+        
+            optionsElement.innerHTML = '';
+            feedbackElement.innerText = ''; // Clear previous feedback
+            currentQuizData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(button, option));
+                optionsElement.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                feedbackElement.innerText = "Correct!"; // Feedback for correct answer
+                score++;
             } else {
-                showResult();
+                button.classList.add('wrong');
+                feedbackElement.innerText = "Wrong! The correct answer is: " + currentQuizData.answer; // Feedback for wrong answer
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
             }
+            disableOptions();
+            setTimeout(loadNextQuestion, 2000);
         }
 
-        function checkAnswer(answer, selectedButton) {
-            const currentQuizData = quizData[currentQuestion];
-            const feedback = document.createElement('div');
-
-            if (answer === currentQuizData.answer) {
-                score++;
-                feedback.innerText = "Correct!";
-                feedback.classList.add('feedback', 'correct');
-            } else {
-                feedback.innerText = "Wrong!";
-                feedback.classList.add('feedback', 'wrong');
-            }
-
-            feedbackElement.innerHTML = ''; // Clear previous feedback
-            feedbackElement.appendChild(feedback);
-
-            // Highlight the correct answer
-            const buttons = optionsElement.querySelectorAll('button');
-            buttons.forEach(button => {
-                if (button.innerText === currentQuizData.answer) {
-                    button.style.backgroundColor = 'green';
-                    button.style.color = 'white';
-                } else if (button === selectedButton) {
-                    button.style.backgroundColor = 'red';
-                    button.style.color = 'white';
-                }
+        function disableOptions() {
+            Array.from(optionsElement.children).forEach(btn => {
+                btn.disabled = true;
             });
+        }
 
+        function loadNextQuestion() {
             currentQuestion++;
-            setTimeout(loadQuestion, 1500); // Automatically load the next question after 1.5 seconds
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                clearInterval(timerInterval);
+                showResult();
+            }
         }
 
         function showResult() {
             questionElement.innerText = '';
             optionsElement.innerHTML = '';
-            feedbackElement.innerHTML = '';
-
-            // Create text element
-            const textElement = document.createElement('p');
-            
-            textElement.style.fontSize = 'large';
-            textElement.style.textAlign = 'center';
-
-            // Create image element
+        
+            const timeTaken = 60 - timeLeft;
+            const percentage = (score / quizData.length) * 100;
+        
             const happyImage = document.createElement('img');
-            happyImage.src = 'https://tse4.mm.bing.net/th?id=OIP.ObafAoXNoml5kwOsNckVoQHaHa&pid=Api&P=0&h=180';
+            happyImage.src = "https://tse4.mm.bing.net/th?id=OIP.ObafAoXNoml5kwOsNckVoQHaHa&pid=Api&P=0&h=180";
             happyImage.alt = 'Happy Image';
-            happyImage.style.display = 'block';
-            happyImage.style.margin = '10px 20px 40px 10px';
-            
+        
+            resultElement.style.display = 'block';
+            resultElement.innerHTML = `
+                <img src="${happyImage.src}" alt="${happyImage.alt}">
+                <p id="re">You scored ${score} out of ${quizData.length}.</p>
+                <p id="re">Accuracy: ${percentage.toFixed(2)}%</p>
+                <p id="time-taken">Time taken: ${timeTaken} seconds</p>
+            `;
 
-            // Append text and image elements to resultElement
-            resultElement.appendChild(textElement);
-            resultElement.appendChild(happyImage);
+            quizContainer.style.height = `${resultElement.clientHeight}px`;
 
-            // Display the user's final score
-            resultElement.innerHTML += `<p id="p11">You scored ${score} out of ${quizData.length}.</p>`;
         }
 
-        loadQuestion(); // Load the first question
+        function startTimer() {
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            timerPathElement.style.strokeDasharray = circumference;
+            timerPathElement.style.strokeDashoffset = circumference;
+
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timerTextElement.textContent = timeLeft;
+
+                    const offset = circumference * (timeLeft / 60);
+                    timerPathElement.style.strokeDashoffset = offset;
+                } else {
+                    clearInterval(timerInterval);
+                    disableOptions();
+                    showResult();
+                }
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startTimer();
+            loadQuestion();
+        });
     </script>
 </body>
 </html>
