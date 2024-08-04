@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App</title>
+    <title>World Quiz</title>
     <link rel="stylesheet" href="quiz1.css">
     <style>
         body {
@@ -155,7 +155,7 @@
         <div class="timer-text" id="timer-text">60</div>
     </div>
     <div class="quiz-container" id="quiz-container">
-        <h1>Yummy!</h1>
+        <h1>World Search </h1>
         <div id="question"></div>
         <div id="options"></div>
         <div class="feedback" id="feedback"></div>
@@ -163,8 +163,7 @@
     </div>
    
     <script>
-        const quizData = [
-            {
+        const quizData= [{
                 question: "1. What is the main ingredient in the Indian dish 'Palak Paneer'?",
                 options: ["Spinach and Cottage Cheese", "Chickpeas", "Lentils", "Potatoes"],
                 answer: "Spinach and Cottage Cheese"
@@ -213,9 +212,8 @@
                 question: "10. What is the Japanese dish of vinegared rice served with raw fish called?",
                 options: ["Ramen", "Sushi", "Tempura", "Udon"],
                 answer: "Sushi"
-            },
+            }
         ];
-        
         let currentQuestion = 0;
         let score = 0;
         let timeLeft = 60;
@@ -284,17 +282,22 @@
             optionsElement.innerHTML = '';
         
             const timeTaken = 60 - timeLeft;
+            const percentage = (score / quizData.length) * 100;
         
             const happyImage = document.createElement('img');
             happyImage.src = "https://tse1.mm.bing.net/th?id=OIP.J2uEZydoZ-GFxfLsMnac_wHaHa&pid=Api&P=0&h=180";
             happyImage.alt = 'Happy Image';
         
             resultElement.style.display = 'block';
-            resultElement.appendChild(happyImage);
-            resultElement.innerHTML += <p id="re">You scored ${score} out of ${quizData.length}.</p>;
-            resultElement.innerHTML += <p id="time-taken">Time taken: ${timeTaken} seconds</p>;
+            resultElement.innerHTML = `
+                <img src="${happyImage.src}" alt="${happyImage.alt}">
+                <p id="re">You scored ${score} out of ${quizData.length}.</p>
+                <p id="re">Accuracy: ${percentage.toFixed(2)}%</p>
+                <p id="time-taken">Time taken: ${timeTaken} seconds</p>
+            `;
 
-            quizContainer.style.height = ${resultElement.clientHeight}px;
+            quizContainer.style.height = `${resultElement.clientHeight}px`;
+
         }
 
         function startTimer() {
