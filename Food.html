@@ -284,22 +284,17 @@
             optionsElement.innerHTML = '';
         
             const timeTaken = 60 - timeLeft;
-            const percentage = (score / quizData.length) * 100;
         
             const happyImage = document.createElement('img');
-            happyImage.src = "https://tse4.mm.bing.net/th?id=OIP.ObafAoXNoml5kwOsNckVoQHaHa&pid=Api&P=0&h=180";
+            happyImage.src = "https://tse1.mm.bing.net/th?id=OIP.J2uEZydoZ-GFxfLsMnac_wHaHa&pid=Api&P=0&h=180";
             happyImage.alt = 'Happy Image';
         
             resultElement.style.display = 'block';
-            resultElement.innerHTML = `
-                <img src="${happyImage.src}" alt="${happyImage.alt}">
-                <p id="re">You scored ${score} out of ${quizData.length}.</p>
-                <p id="re">Accuracy: ${percentage.toFixed(2)}%</p>
-                <p id="time-taken">Time taken: ${timeTaken} seconds</p>
-            `;
+            resultElement.appendChild(happyImage);
+            resultElement.innerHTML += <p id="re">You scored ${score} out of ${quizData.length}.</p>;
+            resultElement.innerHTML += <p id="time-taken">Time taken: ${timeTaken} seconds</p>;
 
-            quizContainer.style.height = `${resultElement.clientHeight}px`;
-
+            quizContainer.style.height = ${resultElement.clientHeight}px;
         }
 
         function startTimer() {
