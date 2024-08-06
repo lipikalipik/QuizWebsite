@@ -11,6 +11,7 @@
             background-color: rgb(231, 214, 31);
         }
         
+        
         .quiz-container {
             margin: 100px auto;
             padding: 50px;
@@ -155,7 +156,7 @@
         <div class="timer-text" id="timer-text">60</div>
     </div>
     <div class="quiz-container" id="quiz-container">
-        <h1>Yummy! </h1>
+        <h1>Yummy ! </h1>
         <div id="question"></div>
         <div id="options"></div>
         <div class="feedback" id="feedback"></div>
@@ -163,7 +164,7 @@
     </div>
    
     <script>
-        const quizData= [{
+       const quizData= [{
                 question: "1. What is the main ingredient in the Indian dish 'Palak Paneer'?",
                 options: ["Spinach and Cottage Cheese", "Chickpeas", "Lentils", "Potatoes"],
                 answer: "Spinach and Cottage Cheese"
@@ -214,6 +215,7 @@
                 answer: "Sushi"
             }
         ];
+        
         let currentQuestion = 0;
         let score = 0;
         let timeLeft = 60;
@@ -242,27 +244,24 @@
             });
         }
         
-        
-            function checkAnswer(button, answer) {
-    const currentQuizData = quizData[currentQuestion];
-    if (answer === currentQuizData.answer) {
-        button.classList.add('correct');
-        feedbackElement.innerText = "Correct!"; // Feedback for correct answer
-        score++;
-    } else {
-        button.classList.add('wrong');
-        // Only highlight the correct answer without providing feedback
-        Array.from(optionsElement.children).forEach(btn => {
-            if (btn.innerText === currentQuizData.answer) {
-                btn.classList.add('correct');
+        function checkAnswer(button, answer) {
+            const currentQuizData = quizData[currentQuestion];
+            if (answer === currentQuizData.answer) {
+                button.classList.add('correct');
+                feedbackElement.innerText = "Correct!"; // Feedback for correct answer
+                score++;
+            } else {
+                button.classList.add('wrong');
+                feedbackElement.innerText = "Wrong! The correct answer is: " + currentQuizData.answer; // Feedback for wrong answer
+                Array.from(optionsElement.children).forEach(btn => {
+                    if (btn.innerText === currentQuizData.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
             }
-        });
-    }
-    disableOptions();
-    setTimeout(loadNextQuestion, 2000);
-}
-
-        
+            disableOptions();
+            setTimeout(loadNextQuestion, 2000);
+        }
 
         function disableOptions() {
             Array.from(optionsElement.children).forEach(btn => {
@@ -283,12 +282,13 @@
         function showResult() {
             questionElement.innerText = '';
             optionsElement.innerHTML = '';
-        
+            feedbackElement.innerText = ''; // Clear feedback text
+
             const timeTaken = 60 - timeLeft;
             const percentage = (score / quizData.length) * 100;
         
             const happyImage = document.createElement('img');
-            happyImage.src = "https://tse1.mm.bing.net/th?id=OIP.J2uEZydoZ-GFxfLsMnac_wHaHa&pid=Api&P=0&h=180";
+            happyImage.src =  "https://tse1.mm.bing.net/th?id=OIP.J2uEZydoZ-GFxfLsMnac_wHaHa&pid=Api&P=0&h=180";
             happyImage.alt = 'Happy Image';
         
             resultElement.style.display = 'block';
@@ -300,7 +300,6 @@
             `;
 
             quizContainer.style.height = `${resultElement.clientHeight}px`;
-
         }
 
         function startTimer() {
