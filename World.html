@@ -282,7 +282,8 @@
         function showResult() {
             questionElement.innerText = '';
             optionsElement.innerHTML = '';
-        
+            feedbackElement.innerText = ''; // Clear feedback text
+
             const timeTaken = 60 - timeLeft;
             const percentage = (score / quizData.length) * 100;
         
@@ -299,7 +300,6 @@
             `;
 
             quizContainer.style.height = `${resultElement.clientHeight}px`;
-
         }
 
         function startTimer() {
